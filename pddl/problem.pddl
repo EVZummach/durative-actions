@@ -21,6 +21,10 @@
     (= (distancia A F) 15)
     (= (tempo A F) 5)
 
+    (neighbor E F)
+    (= (distancia E F) 5)
+    (= (tempo E F) 20)
+
 
     (neighbor B A)
     (= (distancia B A) 3)
@@ -34,6 +38,10 @@
     (= (distancia F A) 15)
     (= (tempo F A) 5)
 
+    (neighbor F E)
+    (= (distancia F E) 5)
+    (= (tempo F E) 20)
+
   )
 
   (:goal (and
@@ -43,6 +51,6 @@
   )
 
   (:metric
-    minimize(custo_tempo)
+    minimize(custo_distancia)
   )
 )
