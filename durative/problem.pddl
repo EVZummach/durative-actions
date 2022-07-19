@@ -44,6 +44,6 @@
   )
 
   (:metric
-    minimize(custo_distancia)
+    minimize(custo_tempo)
   )
 )
