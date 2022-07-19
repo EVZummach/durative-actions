@@ -2,18 +2,20 @@
 
     (:requirements :strips :typing :fluents :equality :durative-actions)
 
-    (:types forno)
+    (:types forno panela)
 
     (:predicates
-      (operating ?f - forno)
-      (pronto ?f - forno)
-      (empty ?f - forno)
+      (f-available ?f - forno)
+      (p-available ?p - panela)
     )
 
     (:functions
-        (tempo-fusao ?f - forno)
-        (capacidade-forno ?f - forno)
-        (quantidade-metal ?f - forno)
+        (taxa-fusao ?f - forno)
+        (f-capacidade ?f - forno)
+        (f-metal ?f - forno)
+
+        (p-capacidade ?p - panela)
+        (p-metal ?p - panela)
     )
 
     (:durative-action fundir
@@ -21,17 +23,42 @@
        (?f - forno)
 
       :duration
-        (= ?duration (tempo-fusao ?f))
+        (= ?duration 1)
 
       :condition (and
-        (at start (empty ?f))
+        (at start (f-available ?f))
       )
 
       :effect (and
-        (increase (quantidade-metal ?f) (* 2 #t))
-        (at start (not (empty ?f)))
-        (at end (pronto ?f))
-        ;(at end (increase (quantidade-metal ?f) (capacidade-forno ?f)))
+        (at start (not (f-available ?f)))
+        (at end (f-available ?f))
+        ;(increase (f-metal ?f) (* 2 #t))
+        (at end (increase (f-metal ?f) (taxa-fusao ?f)))
+      )
+    )
+
+    (:durative-action vazar
+      :parameters
+       (?f - forno
+        ?p - panela)
+
+      :duration
+        (= ?duration 10)
+
+      :condition (and
+        (at start (f-available ?f))
+        (at start (p-available ?p))
+        (at start (>= (f-metal ?f) (p-capacidade ?p)))
+      )
+
+      :effect (and
+        (at start (not (f-available ?f)))
+        (at end (f-available ?f))
+        (at start (not (p-available ?p)))
+        (at end (p-available ?p))
+        ;(increase (quantidade-metal ?f) (* 2 #t))
+        (at end (decrease (f-metal ?f) (p-capacidade ?p)))
+        (at end (increase (p-metal ?p) (p-capacidade ?p)))
       )
     )
 )

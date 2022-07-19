@@ -3,24 +3,29 @@
   (:domain fusao)
 
   (:objects
-    f1 f2 - forno)
+    f1 - forno
+    p1 p2 - panela)
 
   (:init
-    (empty f1)
-    (empty f2)
+    (f-available f1)
+    (p-available p1)
+    (p-available p2)
 
-    (= (quantidade-metal f1) 0)
-    (= (capacidade-forno f1) 10)
-    (= (tempo-fusao f1) 10)
+    (= (f-metal f1) 0)
+    (= (f-capacidade f1) 10)
 
-    (= (quantidade-metal f2) 0)
-    (= (capacidade-forno f2) 20)
-    (= (tempo-fusao f2) 20)
+    (= (p-metal p1) 0)
+    (= (p-capacidade p1) 2.5)
+    (= (p-metal p2) 0)
+    (= (p-capacidade p2) 2.5)
+
+    (= (taxa-fusao f1) 4.67)
   )
 
   (:goal (and
-    (>= (quantidade-metal f1) 10)
-    (>= (quantidade-metal f2) 5)
+    (>= (f-metal f1) 15)
+    (>= (p-metal p1) 2)
+    (>= (p-metal p2) 2)
     )
   )
 )
