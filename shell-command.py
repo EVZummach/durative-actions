@@ -2,6 +2,8 @@ import sys
 import argparse
 import subprocess
 
+import numpy as np
+
 from os.path import exists, join
 
 def read_input():
@@ -37,9 +39,58 @@ def read_input():
 
     return join('.', args.p), join(args.f, 'domain.pddl'), join(args.f, 'problem.pddl')
 
+def handle_planner(PLANNER, DOMAIN, PROBLEM):
+    result = subprocess.run([PLANNER, DOMAIN, PROBLEM], stdout=subprocess.PIPE)
+    shell_output = result.stdout.decode()
+    shell_output_list =shell_output.split('\n')
+    output_index = shell_output_list.index('Problem Unsolvable')+5
+    output_sequence = shell_output_list[output_index:]
+    return output_sequence
+
+def process_output(output_string):
+    seq = []
+    for (id, output) in enumerate(output_string):
+        if ':' in output:
+            time, command_aux = output.split(':')
+            if 'produzir' in command_aux:
+                model = command_aux.split(' modelo')[1][0]
+                cycle_time = command_aux.split('[')[-1][0:-1]
+                seq.append([time, model, cycle_time])
+    seq = np.vstack(seq)
+    return seq
+
+def count_sequence(sequence):
+    model = sequence[0]
+    model_sequence = []
+    counter = 0
+    for current_model in sequence:
+        if model != current_model:
+            model_sequence.append(f'Produzir {counter} peças do modelo {model}')
+            counter = 1
+            model = current_model
+        else:
+            counter += 1
+
+    model_sequence.append(f'Produzir {counter} peças do modelo {model}')
+
+    model_sequence = np.vstack(model_sequence)
+    return model_sequence
+
+def analyze_efficiency(sequence):
+    planner_cycle = sequence[:,0][-1].astype(float)
+    true_cycle = np.sum(sequence[:,2].astype(float), axis=0)
+    return planner_cycle, true_cycle
 
 if __name__ == '__main__':
     #print(sys.argv)
     PLANNER_PATH, D_PATH, P_PATH = read_input()
-    result = subprocess.run([PLANNER_PATH, D_PATH, P_PATH], stdout=subprocess.PIPE)
-    print(result.stdout.decode())
+    planner_output = handle_planner(PLANNER_PATH, D_PATH, P_PATH)
+    production_info = process_output(planner_output)
+    model_sequence = count_sequence(production_info[:,1])
+    planner_cycle, true_cycle = analyze_efficiency(production_info)
+
+    print(f'{model_sequence}\n')
+    print(f'Planner production time:{planner_cycle:%0.2f}')
+    print(f'True production time:{true_cycle}')
+    print(f'Stopped time:{planner_cycle-true_cycle}')
+    #print(production_info)
