@@ -1,8 +1,8 @@
 (define (domain fundicao)
 
-    (:requirements :strips :typing :fluents :equality :durative-actions)
+    (:requirements :typing :fluents :durative-actions)
 
-    (:types modelo vazamento linha)
+    (:types modelo qtde-prod vazamento linha)
 
     (:predicates
       (produzindo ?m - modelo)
@@ -16,12 +16,15 @@
     )
 
     (:functions
+        (qtde-producao ?q - qtde-prod)
+        
         (l-empurrada ?l - linha)
 
         (v-metal ?v - vazamento)
         (v-taxa ?v - vazamento)
         (v-enchimento ?v - vazamento)
         (v-capacidade ?v - vazamento)
+        (v-abastecimento ?v - vazamento)
 
         (setup ?m - modelo)
         (peso ?m - modelo)
@@ -49,7 +52,6 @@
         (at end (l-parada ?l))
         (at end (l-pronta ?l))
       )
-
      )
 
 
@@ -65,11 +67,11 @@
       :condition (and
         (at start (>= (v-metal ?v) (peso ?m)))
         (at start (v-not-occupied ?v))
-        (over all (produzindo ?m))
+
+        (at start (produzindo ?m))
         (at end (produzindo ?m))
 
         (at start (l-pronta ?l))
-        (over all (l-parada ?l))
         (at end (l-parada ?l))
       )
 
@@ -112,6 +114,7 @@
         (at start (not (produzindo ?m_f)))
         (at end (produzindo ?m_t))
         (at end (increase (custo_tempo) (setup ?m_t)))
+        ;(at end (increase (setups) 1))
       )
     )
 
@@ -120,7 +123,7 @@
        (?v - vazamento)
 
       :duration
-        (= ?duration 60)
+        (= ?duration (v-abastecimento ?v))
 
       :condition (and
         (at start (v-available ?v))

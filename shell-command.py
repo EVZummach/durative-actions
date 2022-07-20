@@ -13,6 +13,8 @@ peso_modelos = {'1':90,
                '2':130,
                '3':60,
                '4':83}
+cap_enchimento = 1400
+cap_time = 300
 
 def read_input():
     parser = argparse.ArgumentParser(prog='IA', description='Runs domain and problem with the OPTIC-CLP planner for the AI work. This work plans an optimal sequence of production in a foundry. The parameters must be set in the problem.pddl file.')
@@ -50,6 +52,7 @@ def read_input():
 def handle_planner(PLANNER, DOMAIN, PROBLEM):
     result = subprocess.run([PLANNER, DOMAIN, PROBLEM], stdout=subprocess.PIPE)
     shell_output = result.stdout.decode()
+    #print(shell_output)
     shell_output_list =shell_output.split('\n')
     output_index = shell_output_list.index('Problem Unsolvable')+5
     output_sequence = shell_output_list[output_index:]
@@ -57,6 +60,8 @@ def handle_planner(PLANNER, DOMAIN, PROBLEM):
 
 def process_output(output_string):
     global peso_modelos
+    global cap_enchimento
+    global cap_time
     seq = []
     trocas = []
     fornos = []
@@ -92,8 +97,8 @@ def process_output(output_string):
 
             elif 'fundir' in command_aux:
                 sel_forno = command_aux.split('cap')[1][0]
-                metal_forno = 200
-                time_forno = float(time)+60
+                metal_forno = cap_enchimento
+                time_forno = float(time)+cap_time
                 fornos.append([sel_forno, metal_forno, time_forno])
 
     seq = np.vstack(seq)
@@ -140,6 +145,8 @@ def fornos_report(fornos):
     plt.xlabel('Timestamp')
     plt.ylabel('Acumulado de Metal')
     plt.savefig('Vazamento.png')
+
+    #print(df)
 
     return df
 
