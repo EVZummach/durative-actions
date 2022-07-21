@@ -2,7 +2,7 @@
 
     (:requirements :typing :fluents :durative-actions)
 
-    (:types modelo vazamento linha)
+    (:types modelo qtde-prod vazamento linha)
 
     (:predicates
       (produzindo ?m - modelo)
@@ -16,6 +16,7 @@
     )
 
     (:functions
+        (qtde-producao ?q - qtde-prod)
 
         (l-empurrada ?l - linha)
 
@@ -33,23 +34,20 @@
         (custo_tempo)
     )
 
-    (:durative-action empurrar
+    (:action empurrar
       :parameters
       (?l - linha)
 
-      :duration
-        (= ?duration (l-empurrada ?l))
-
-      :condition(and
-        (at start (l-empurrar ?l))
-        (at start (l-parada ?l))
+      :precondition(and
+        (l-empurrar ?l)
+        (l-parada ?l)
       )
 
       :effect (and
-        (at end (not (l-empurrar ?l)))
-        (at start (not (l-parada ?l)))
-        (at end (l-parada ?l))
-        (at end (l-pronta ?l))
+        (not (l-empurrar ?l))
+        (not (l-parada ?l))
+        (l-parada ?l)
+        (l-pronta ?l)
       )
      )
 
@@ -57,14 +55,15 @@
     (:durative-action produzir
       :parameters
        (?m - modelo
+        ?q - qtde-prod
         ?v - vazamento
         ?l - linha)
 
       :duration
-        (= ?duration (/ (peso ?m) (v-taxa ?v)))
+        (= ?duration (*(+ (/ (peso ?m) (v-taxa ?v)) (l-empurrada ?l)) (qtde-producao ?q)))
 
       :condition (and
-        (at start (>= (v-metal ?v) (peso ?m)))
+        (at start (>= (v-metal ?v) (* (peso ?m) (qtde-producao ?q))))
         (at start (v-not-occupied ?v))
 
         (at start (produzindo ?m))
@@ -80,9 +79,9 @@
         (at start (not (v-not-occupied ?v)))
         (at end (v-not-occupied ?v))
 
-        (at end (increase (produzido ?m) 1))
-        (at end (decrease (v-metal ?v) (peso ?m)))
-        (at end (increase (custo_tempo) (+ (/ (peso ?m) (v-taxa ?v)) (l-empurrada ?l))))
+        (at end (increase (produzido ?m) (qtde-producao ?q)))
+        (at end (decrease (v-metal ?v) (* (peso ?m) (qtde-producao ?q))))
+        (at end (increase (custo_tempo) (* (+ (/ (peso ?m) (v-taxa ?v)) (l-empurrada ?l)) (qtde-producao ?q))))
       )
     )
 

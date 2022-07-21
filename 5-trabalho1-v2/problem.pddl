@@ -4,11 +4,23 @@
 
   (:objects
     modelo1 modelo2 modelo3 modelo4 modelo5 modelo6 modelo7 - modelo
+    A B C D E F G H I J - qtde-prod
     cap1 cap2 - vazamento
     moldagem - linha)
 
   (:init
     (= (l-empurrada moldagem) 6)
+
+    ;(= (qtde-producao A) 1)
+    ;(= (qtde-producao B) 2)
+    ;(= (qtde-producao C) 5)
+    (= (qtde-producao D) 10)
+    (= (qtde-producao E) 15)
+    (= (qtde-producao F) 20)
+    (= (qtde-producao G) 25)
+    (= (qtde-producao H) 30)
+    (= (qtde-producao I) 50)
+    (= (qtde-producao J) 100)
 
     (l-parada moldagem)
     (l-empurrar moldagem)
@@ -58,12 +70,12 @@
   )
 
   (:goal (and
-    (>= (produzido modelo1) 100)
-    (>= (produzido modelo2) 150)
-    (>= (produzido modelo3) 50)
-    (>= (produzido modelo4) 10)
-    (>= (produzido modelo5) 200)
-    (>= (produzido modelo6) 100)
+    (>= (produzido modelo1) 10)
+    (>= (produzido modelo2) 15)
+    ;(>= (produzido modelo3) 50)
+    ;(>= (produzido modelo4) 10)
+    ;(>= (produzido modelo5) 200)
+    ;(>= (produzido modelo6) 100)
     ;(>= (produzido modelo7) 80)
     )
   )
